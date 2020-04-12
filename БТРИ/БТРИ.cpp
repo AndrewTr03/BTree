@@ -4,19 +4,20 @@
 #include <iostream>
 using namespace std;
 
-const int n = 2;        //2*n - максимальное количество ЭЛЕМЕНТОВ в листочке
+const int n = 2;            //2*n - максимальное количество ЭЛЕМЕНТОВ в листочке
 class Leaf
 {
 public:
-    int quantity;       //количество элементов в листочке
-    int Value[10];      //массив со значениями
-    Leaf* Child[10];    //массив с указателями
-    Leaf* Parent;       //указатель на предка
+    int quantity;               //количество элементов в листочке
+    int Value[10];              //массив со значениями
+    Leaf* Child[10];            //массив с указателями
+    Leaf* Parent;               //указатель на предка
 public:
-    Leaf(int*);         //для случая с массивом
-    Leaf(int);          //для первого создания 
-    Leaf(int, Leaf*);   //для привязке к родительскому предку 
-    void addVal(int);
+    Leaf(int*);                 //для случая с массивом
+    Leaf(int);                  //для первого создания 
+    Leaf(int, Leaf*);           //для привязке к родительскому предку 
+    void addVal(int);           //добавление значения
+    void newLeaf(int);          //создание нового листочка с образованием взаимных связей
     void Show();
 };
 
@@ -56,6 +57,16 @@ void Leaf::addVal(int what)
     }
 }
 
+void Leaf::newLeaf(int initial)
+{
+    Leaf* NewLeaf;
+    NewLeaf = new Leaf(initial, this);
+    int i = 0;
+    for (; i < (this->quantity) + 1; i++)
+        if (this->Child[i] == NULL) break;
+    this->Child[i] = NewLeaf;
+}
+
 void Leaf::Show()
 {
     for (int i = 0; i < this->quantity; i++) printf("%d ", this->Value[i]);
@@ -68,8 +79,11 @@ int main()
     Root.addVal(8);
     Root.addVal(6);
     Root.addVal(9);
-    Root.addVal(60);
+    Root.newLeaf(60);
+    Root.newLeaf(70);
     Root.Show();
+    Root.Child[0]->Show();
+    Root.Child[1]->Show();
     return(0);
 }
 
