@@ -5,15 +5,17 @@
 using namespace std;
 
 const int n = 2;        //2*n - максимальное количество ЭЛЕМЕНТОВ в листочке
-static class Leaf
+class Leaf
 {
 public:
-    int quantity;
-    int Value[10]; 
-    Leaf* Node[10];
+    int quantity;       //количество элементов в листочке
+    int Value[10];      //массив со значениями
+    Leaf* Child[10];    //массив с указателями
+    Leaf* Parent;       //указатель на предка
 public:
-    Leaf(int*);
-    Leaf(int);
+    Leaf(int*);         //для случая с массивом
+    Leaf(int);          //для первого создания 
+    Leaf(int, Leaf*);   //для привязке к родительскому предку 
     void addVal(int);
     void Show();
 };
@@ -28,6 +30,13 @@ Leaf::Leaf(int initial)
 {
     this->Value[0] = initial;
     this->quantity = 1;
+}
+
+Leaf::Leaf(int initial, Leaf* dad)
+{
+    this->Value[0] = initial;
+    this->quantity = 1;
+    this->Parent = dad;
 }
 
 void Leaf::addVal(int what)
