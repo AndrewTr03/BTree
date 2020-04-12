@@ -4,67 +4,71 @@
 #include <iostream>
 using namespace std;
 
-const int n = 2;            //2*n - максимальное количество ЭЛЕМЕНТОВ в листочке
+const int n = 5;               //n - максимальное количество УКАЗАТЕЛЕЙ в листочке
 class Leaf
 {
 public:
-    int quantity;               //количество элементов в листочке
+    int quantity;               //текущее количество элементов в листочке
     int Value[10];              //массив со значениями
     Leaf* Child[10];            //массив с указателями
     Leaf* Parent;               //указатель на предка
 public:
-    Leaf(int*);                 //для случая с массивом
     Leaf(int);                  //для первого создания 
-    Leaf(int, Leaf*);           //для привязке к родительскому предку 
     void addVal(int);           //добавление значения
-    void newLeaf(int);          //создание нового листочка с образованием взаимных связей
+    void newLeaf();          //создание нового листочка с образованием взаимных связей
     void Show();
 };
 
-Leaf::Leaf(int* Val)
-{
-    for (int i = 0; i < n; i++)
-        this->Value[i] = *(Val + i);
-}
-
-Leaf::Leaf(int initial)
+Leaf :: Leaf(int initial)
 {
     this->Value[0] = initial;
     this->quantity = 1;
 }
 
-Leaf::Leaf(int initial, Leaf* dad)
+void Leaf :: addVal(int what)
 {
-    this->Value[0] = initial;
-    this->quantity = 1;
-    this->Parent = dad;
-}
-
-void Leaf::addVal(int what)
-{
-    if (this->quantity == 2 * n) { cout << "chlen" << endl; return; } //если количество больше то вызываем дележку листа
-    else {
         for (int i = 0; i < this->quantity; i++)
-            if (what < this->Value[i])
+            if (what <= this->Value[i])
             {
                 for (int j = this->quantity; j > i; j--)
                     this->Value[j] = this->Value[j - 1];
                 this->Value[i] = what;
                 break;
             }
-            else if (i == quantity) this->Value[i] = what;
+        if (what > this->Value[this->quantity]) this->Value[quantity] = what;
         this->quantity++;
-    }
+        if (this->quantity == n) { this->newLeaf(); return; }
 }
 
-void Leaf::newLeaf(int initial)
+
+void Leaf::newLeaf()
 {
-    Leaf* NewLeaf;
-    NewLeaf = new Leaf(initial, this);
-    int i = 0;
-    for (; i < (this->quantity) + 1; i++)
-        if (this->Child[i] == NULL) break;
-    this->Child[i] = NewLeaf;
+    int center = n/2;                                                               //узнаём индекс элемента посередине
+    if (this->Parent != NULL) this->Parent->addVal(this->Value[center]);            //если есть предок то добавляем в предок
+    else
+    {
+        Leaf* Batya = new Leaf(this->Value[center]);                                //создаём нового предка, в основе которого серединный элемент
+        Leaf* Brother = new Leaf(this->Value[center + 1]);                          //создаём брата для листа, в основе элмент после серединного
+        this->Parent = Batya;                                                       //указатели на родителей
+        Brother->Parent = Batya;
+        this->Value[center] = 0;
+        this->Value[center + 1] = 0;
+        for (int i = center + 2; i < this->quantity; i++)                           //переносим остаток значений в брата
+        {
+            Brother->addVal(this->Value[i]);
+            this->Value[i] = 0;
+            this->quantity--;
+        }
+        this->quantity = this->quantity - 2;
+        for (int i = center + 1; i < n; i++)
+        {
+            Brother->Child[i - (center + 1)] = this->Child[i];
+            this->Child[i] = NULL;
+        }
+        Batya->Child[0] = this;
+        Batya->Child[1] = Brother;
+    }
+    
 }
 
 void Leaf::Show()
@@ -77,13 +81,17 @@ int main()
 {
     Leaf Root(10);
     Root.addVal(8);
+    Root.addVal(60);
     Root.addVal(6);
     Root.addVal(9);
-    Root.newLeaf(60);
-    Root.newLeaf(70);
+    printf("%d\n", Root.quantity);
     Root.Show();
-    Root.Child[0]->Show();
-    Root.Child[1]->Show();
+    printf("\n");
+    printf("%d\n", Root.Parent->quantity);
+    Root.Parent->Show();
+    printf("\n");
+    printf("%d\n", Root.Parent->Child[1]->quantity);
+    Root.Parent->Child[1]->Show();
     return(0);
 }
 
